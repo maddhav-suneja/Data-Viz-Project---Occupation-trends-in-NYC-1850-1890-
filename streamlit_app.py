@@ -24,6 +24,13 @@ GROUP_COLORS = {
     "Transport / Maritime": [208, 168, 92, 170],
     "Public / Civic": [109, 89, 122, 170],
 }
+YEAR_THEME = {
+    1850: {"accent": "#8D4B32", "accent_rgb": [141, 75, 50], "soft": "rgba(141, 75, 50, 0.14)"},
+    1851: {"accent": "#A0622D", "accent_rgb": [160, 98, 45], "soft": "rgba(160, 98, 45, 0.14)"},
+    1852: {"accent": "#7A8450", "accent_rgb": [122, 132, 80], "soft": "rgba(122, 132, 80, 0.14)"},
+    1853: {"accent": "#5E7496", "accent_rgb": [94, 116, 150], "soft": "rgba(94, 116, 150, 0.14)"},
+    1854: {"accent": "#7C3F46", "accent_rgb": [124, 63, 70], "soft": "rgba(124, 63, 70, 0.14)"},
+}
 
 
 st.set_page_config(
@@ -173,6 +180,8 @@ def load_manhattan_ntas():
 
 
 def build_map_layer(df):
+    theme = YEAR_THEME.get(int(df["year"].iloc[0]), YEAR_THEME[1850]) if not df.empty else YEAR_THEME[1850]
+    r, g, b = theme["accent_rgb"]
     return pdk.Layer(
         "ScatterplotLayer",
         data=df,
@@ -180,7 +189,7 @@ def build_map_layer(df):
         get_radius=16,
         radius_min_pixels=1,
         radius_max_pixels=2,
-        get_fill_color=[142, 68, 45, 95],
+        get_fill_color=[r, g, b, 105],
         pickable=True,
     )
 
@@ -341,8 +350,39 @@ selected_year = st.slider(
     value=min(YEAR_RANGE),
     step=1,
 )
+theme = YEAR_THEME[selected_year]
 
 song_path = song_file_for_year(selected_year)
+
+st.markdown(
+    f"""
+    <style>
+    .stApp [data-baseweb="slider"] div[role="slider"] {{
+        background: {theme["accent"]} !important;
+        border-color: {theme["accent"]} !important;
+        box-shadow: 0 0 0 5px {theme["soft"]};
+    }}
+    .stApp [data-baseweb="slider"] > div > div {{
+        background: linear-gradient(90deg, {theme["accent"]}, rgba(255,255,255,0.35)) !important;
+    }}
+    .hero {{
+        box-shadow: 0 14px 34px {theme["soft"]};
+    }}
+    .hero-kicker, .control-label {{
+        color: {theme["accent"]};
+    }}
+    .control-card {{
+        border-color: {theme["soft"]};
+        box-shadow: inset 0 1px 0 rgba(255,255,255,0.28);
+    }}
+    h2 {{
+        color: {theme["accent"]};
+    }}
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
+
 top_left, top_right = st.columns([1.6, 1])
 with top_left:
     st.markdown(
@@ -428,17 +468,17 @@ with middle:
             values="count",
             hole=0.35,
             color="occupation_group",
-            color_discrete_sequence=[
-                "#8d4b32",
-                "#b17749",
-                "#c7a15a",
-                "#708c56",
-                "#5a7d6e",
-                "#5b6f97",
-                "#7d5f8c",
-                "#8d6b5a",
-                "#8a8176",
-            ],
+            color_discrete_map={
+                "Business / Owner": "#8D4B32",
+                "Skilled Trades": "#B17749",
+                "Professional": "#5B6F97",
+                "Labor": "#708C56",
+                "Domestic / Service": "#7D5F8C",
+                "Clerical / Administrative": "#5A7D6E",
+                "Transport / Maritime": "#C7A15A",
+                "Public / Civic": "#8D6B5A",
+                "Other / Unknown": "#8A8176",
+            },
         )
         pie_fig.update_traces(
             textposition="inside",
