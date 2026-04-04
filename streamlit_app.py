@@ -128,6 +128,54 @@ st.markdown(
         margin-top: -0.2rem;
         margin-bottom: 0.55rem;
     }
+    .insight-band {
+        background: linear-gradient(135deg, rgba(255,250,241,0.82), rgba(242,229,202,0.52));
+        border: 1px solid var(--paper-line);
+        border-radius: 20px;
+        padding: 1rem 1.15rem;
+        margin: 0.7rem 0 1rem 0;
+        box-shadow: 0 12px 28px var(--glow);
+    }
+    .insight-label {
+        text-transform: uppercase;
+        letter-spacing: 0.14em;
+        font-size: 0.72rem;
+        color: var(--ink-soft);
+        margin-bottom: 0.35rem;
+    }
+    .insight-text {
+        margin: 0;
+        font-size: 1.02rem;
+        line-height: 1.45;
+        color: var(--ink);
+    }
+    .metric-card {
+        background: rgba(255,248,234,0.5);
+        border: 1px solid rgba(110, 79, 46, 0.14);
+        border-radius: 18px;
+        padding: 0.8rem 0.95rem;
+        min-height: 108px;
+    }
+    .metric-label {
+        text-transform: uppercase;
+        letter-spacing: 0.14em;
+        font-size: 0.7rem;
+        color: var(--ink-soft);
+        margin-bottom: 0.4rem;
+    }
+    .metric-value {
+        font-family: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", Georgia, serif;
+        font-size: 1.7rem;
+        line-height: 1;
+        color: #362517;
+        margin-bottom: 0.35rem;
+    }
+    .metric-copy {
+        margin: 0;
+        color: var(--ink-soft);
+        font-size: 0.95rem;
+        line-height: 1.35;
+    }
     </style>
     """,
     unsafe_allow_html=True,
@@ -191,6 +239,28 @@ def build_map_layer(df):
         radius_max_pixels=2,
         get_fill_color=[r, g, b, 105],
         pickable=True,
+    )
+
+
+def build_heatmap_layer(df):
+    theme = YEAR_THEME.get(int(df["year"].iloc[0]), YEAR_THEME[1850]) if not df.empty else YEAR_THEME[1850]
+    r, g, b = theme["accent_rgb"]
+    return pdk.Layer(
+        "HeatmapLayer",
+        data=df,
+        get_position="[longitude, latitude]",
+        get_weight=1,
+        radius_pixels=35,
+        intensity=1,
+        threshold=0.08,
+        color_range=[
+            [255, 247, 236, 10],
+            [253, 224, 181, 60],
+            [r, g, b, 110],
+            [max(r - 20, 35), max(g - 20, 25), max(b - 20, 25), 170],
+            [max(r - 35, 20), max(g - 35, 20), max(b - 35, 20), 230],
+        ],
+        pickable=False,
     )
 
 
@@ -324,6 +394,48 @@ def build_zone_layer(zone_geojson):
     )
 
 
+def summarize_year(selected_year, selected_occ, zone_geojson, map_df):
+    mapped_total = int(len(map_df))
+
+    top_occ = None
+    top_share = None
+    if not selected_occ.empty:
+        top_row = selected_occ.sort_values("count", ascending=False).iloc[0]
+        top_occ = top_row["occupation_group"]
+        top_share = float(top_row["count"] / selected_occ["count"].sum())
+
+    top_zone = None
+    top_zone_group = None
+    top_zone_share = None
+    if zone_geojson["features"]:
+        top_feature = max(
+            zone_geojson["features"],
+            key=lambda feature: float(str(feature["properties"]["dominant_share_pct"]).strip("%")),
+        )
+        top_zone = top_feature["properties"]["zone_name"]
+        top_zone_group = top_feature["properties"]["dominant_group"]
+        top_zone_share = top_feature["properties"]["dominant_share_pct"]
+
+    if top_occ and top_zone:
+        insight_text = (
+            f"In {selected_year}, mapped directory entries remain concentrated in lower Manhattan. "
+            f"{top_occ} is the largest occupation group overall ({top_share:.1%} of grouped entries), "
+            f"while {top_zone} stands out as the most specialized neighborhood, led by {top_zone_group} at {top_zone_share}."
+        )
+    elif top_occ:
+        insight_text = (
+            f"In {selected_year}, mapped directory entries remain concentrated in lower Manhattan, "
+            f"and {top_occ} is the largest occupation group overall ({top_share:.1%} of grouped entries)."
+        )
+    else:
+        insight_text = (
+            f"In {selected_year}, the strongest visible pattern is spatial concentration: "
+            f"directory activity clusters in parts of lower Manhattan rather than spreading evenly across the island."
+        )
+
+    return mapped_total, top_occ, top_share, top_zone, top_zone_group, top_zone_share, insight_text
+
+
 st.markdown(
     """
     <div class="hero">
@@ -422,6 +534,54 @@ if map_df.empty:
 
 selected_occ = occupation_summary_df[occupation_summary_df["year"] == selected_year].copy()
 zone_geojson = build_zone_geojson(grouped_points_df, manhattan_nta_features, selected_year)
+mapped_total, top_occ, top_share, top_zone, top_zone_group, top_zone_share, insight_text = summarize_year(
+    selected_year, selected_occ, zone_geojson, map_df
+)
+
+metric1, metric2, metric3 = st.columns(3, gap="medium")
+with metric1:
+    st.markdown(
+        f"""
+        <div class="metric-card">
+            <div class="metric-label">Mapped Entries</div>
+            <div class="metric-value">{mapped_total:,}</div>
+            <p class="metric-copy">Individual directory records plotted for {selected_year}.</p>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+with metric2:
+    st.markdown(
+        f"""
+        <div class="metric-card">
+            <div class="metric-label">Largest Occupation Group</div>
+            <div class="metric-value">{top_occ or "N/A"}</div>
+            <p class="metric-copy">{f"{top_share:.1%} of grouped entries in {selected_year}." if top_share is not None else "Grouped occupation summary unavailable."}</p>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+with metric3:
+    st.markdown(
+        f"""
+        <div class="metric-card">
+            <div class="metric-label">Most Specialized Neighborhood</div>
+            <div class="metric-value">{top_zone or "N/A"}</div>
+            <p class="metric-copy">{f"{top_zone_group} leads this area at {top_zone_share}." if top_zone else "Neighborhood summary unavailable for this year."}</p>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+st.markdown(
+    f"""
+    <div class="insight-band">
+        <div class="insight-label">What To Notice</div>
+        <p class="insight-text">{insight_text}</p>
+    </div>
+    """,
+    unsafe_allow_html=True,
+)
 
 left, middle, right = st.columns([1.2, 0.95, 1.0], gap="medium")
 
