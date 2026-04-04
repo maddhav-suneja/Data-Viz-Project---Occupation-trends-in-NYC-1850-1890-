@@ -27,22 +27,29 @@ GROUP_COLORS = {
 
 
 st.set_page_config(
-    page_title="NYC Directory Map, 1850-1854",
+    page_title="Occupation Trends in Early New York",
     layout="wide",
 )
 
 st.markdown(
     """
     <style>
+    :root {
+        --ink: #2f2418;
+        --ink-soft: #5c4938;
+        --paper-line: rgba(95, 67, 37, 0.16);
+        --glow: rgba(74, 52, 29, 0.08);
+    }
     .stApp {
         background:
-            radial-gradient(circle at top, rgba(129, 92, 52, 0.08), transparent 34%),
-            linear-gradient(180deg, #f4ecd8 0%, #efe4cc 45%, #e6d7ba 100%);
-        color: #2f2418;
+            radial-gradient(circle at top, rgba(129, 92, 52, 0.14), transparent 28%),
+            linear-gradient(180deg, #f7f0df 0%, #efe4cb 44%, #e3d0ae 100%);
+        color: var(--ink);
     }
     .main .block-container {
-        padding-top: 2rem;
+        padding-top: 1.1rem;
         padding-bottom: 3rem;
+        max-width: 1380px;
     }
     h1, h2, h3 {
         font-family: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", Georgia, serif;
@@ -53,10 +60,66 @@ st.markdown(
         font-family: "Baskerville", "Times New Roman", Georgia, serif;
     }
     div[data-testid="stSlider"] {
-        background: rgba(110, 79, 46, 0.08);
-        border: 1px solid rgba(110, 79, 46, 0.18);
-        padding: 0.7rem 1rem 0.4rem 1rem;
-        border-radius: 14px;
+        background: linear-gradient(180deg, rgba(255,255,255,0.24), rgba(255,255,255,0.08));
+        border: 1px solid rgba(110, 79, 46, 0.16);
+        padding: 0.8rem 1rem 0.45rem 1rem;
+        border-radius: 15px;
+        box-shadow: inset 0 1px 0 rgba(255,255,255,0.32);
+    }
+    .hero {
+        background: linear-gradient(135deg, rgba(255,250,241,0.8), rgba(242,229,202,0.58));
+        border: 1px solid var(--paper-line);
+        border-radius: 22px;
+        padding: 1.15rem 1.35rem 1rem 1.35rem;
+        margin-bottom: 1rem;
+        box-shadow: 0 14px 34px var(--glow);
+    }
+    .hero-kicker {
+        text-transform: uppercase;
+        letter-spacing: 0.18em;
+        font-size: 0.72rem;
+        color: var(--ink-soft);
+        margin-bottom: 0.35rem;
+    }
+    .hero-title {
+        font-family: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", Georgia, serif;
+        font-size: 2.45rem;
+        line-height: 1.02;
+        color: #362517;
+        margin: 0 0 0.45rem 0;
+    }
+    .hero-copy {
+        color: var(--ink-soft);
+        font-size: 1.05rem;
+        line-height: 1.45;
+        max-width: 980px;
+        margin: 0;
+    }
+    .control-card {
+        background: rgba(255, 248, 234, 0.5);
+        border: 1px solid rgba(110, 79, 46, 0.14);
+        border-radius: 18px;
+        padding: 0.75rem 0.95rem;
+        margin-bottom: 0.8rem;
+    }
+    .control-label {
+        text-transform: uppercase;
+        letter-spacing: 0.14em;
+        font-size: 0.72rem;
+        color: var(--ink-soft);
+        margin-bottom: 0.3rem;
+    }
+    .control-copy {
+        margin: 0;
+        color: var(--ink);
+        line-height: 1.4;
+    }
+    .viz-note {
+        color: var(--ink-soft);
+        font-size: 0.97rem;
+        line-height: 1.4;
+        margin-top: -0.2rem;
+        margin-bottom: 0.55rem;
     }
     </style>
     """,
@@ -252,11 +315,19 @@ def build_zone_layer(zone_geojson):
     )
 
 
-st.title("Occupation Trends in Early New York, 1850-1854")
-st.caption(
-    "This dashboard follows how geocoded directory entries were distributed across Manhattan between 1850 and 1854. "
-    "Use the year slider to trace individual directory points, compare the occupational makeup of each year, "
-    "and see which neighborhoods were dominated by different kinds of work."
+st.markdown(
+    """
+    <div class="hero">
+        <div class="hero-kicker">Historical Urban Directory Atlas</div>
+        <div class="hero-title">Occupation Trends in Early New York, 1850-1854</div>
+        <p class="hero-copy">
+            This dashboard follows how geocoded directory entries were distributed across Manhattan between 1850 and 1854.
+            Use the shared year control to trace individual directory points, compare the occupational makeup of each year,
+            and see which neighborhoods were dominated by different kinds of work.
+        </p>
+    </div>
+    """,
+    unsafe_allow_html=True,
 )
 
 if not APP_POINTS_PATH.exists():
@@ -275,10 +346,28 @@ song_path = song_file_for_year(selected_year)
 top_left, top_right = st.columns([1.6, 1])
 with top_left:
     st.markdown(
-        "This shared year control updates every view on the page so the map, occupation mix, and neighborhood ratios stay synchronized."
+        f"""
+        <div class="control-card">
+            <div class="control-label">Shared Year View</div>
+            <p class="control-copy">
+                All three views update together. The dashboard is currently focused on <strong>{selected_year}</strong>,
+                so the map, occupation mix, and neighborhood ratios stay synchronized.
+            </p>
+        </div>
+        """,
+        unsafe_allow_html=True,
     )
 with top_right:
     if song_path is not None:
+        st.markdown(
+            f"""
+            <div class="control-card">
+                <div class="control-label">Listening Layer</div>
+                <p class="control-copy">Historical audio for <strong>{selected_year}</strong>.</p>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
         st.audio(str(song_path), format="audio/mp3", start_time=0)
 
 app_points_df = load_app_points()
@@ -298,8 +387,9 @@ left, middle, right = st.columns([1.2, 0.95, 1.0], gap="medium")
 
 with left:
     st.subheader("Directory Point Map")
-    st.caption(
-        "Each point is one geocoded directory entry for the selected year."
+    st.markdown(
+        '<p class="viz-note">Each point represents one geocoded directory entry for the selected year.</p>',
+        unsafe_allow_html=True,
     )
     view_state = pdk.ViewState(
         latitude=float(map_df["latitude"].median()),
@@ -325,8 +415,9 @@ with left:
 
 with middle:
     st.subheader("Occupation Diversity")
-    st.caption(
-        "Grouped occupation mix for the selected year."
+    st.markdown(
+        '<p class="viz-note">Grouped occupation categories summarize the overall composition of work in the selected year.</p>',
+        unsafe_allow_html=True,
     )
     if selected_occ.empty:
         st.info("Occupation summary data is not available for this year.")
@@ -368,8 +459,9 @@ with middle:
 
 with right:
     st.subheader("Neighborhood Ratios")
-    st.caption(
-        "Neighborhood polygons colored by dominant occupation group."
+    st.markdown(
+        '<p class="viz-note">Neighborhood polygons are colored by the occupation group with the strongest share in that area.</p>',
+        unsafe_allow_html=True,
     )
     if not zone_geojson["features"]:
         st.info("No neighborhood ratio data is available yet for this year.")
