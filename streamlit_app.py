@@ -24,6 +24,17 @@ GROUP_COLORS = {
     "Transport / Maritime": [208, 168, 92, 170],
     "Public / Civic": [109, 89, 122, 170],
 }
+GROUP_HEX = {
+    "Business / Owner": "#8D4B32",
+    "Skilled Trades": "#B17749",
+    "Professional": "#5B6F97",
+    "Labor": "#708C56",
+    "Domestic / Service": "#7D5F8C",
+    "Clerical / Administrative": "#5A7D6E",
+    "Transport / Maritime": "#C7A15A",
+    "Public / Civic": "#8D6B5A",
+    "Other / Unknown": "#8A8176",
+}
 YEAR_THEME = {
     1850: {"accent": "#8D4B32", "accent_rgb": [141, 75, 50], "soft": "rgba(141, 75, 50, 0.14)"},
     1851: {"accent": "#A0622D", "accent_rgb": [160, 98, 45], "soft": "rgba(160, 98, 45, 0.14)"},
@@ -175,6 +186,27 @@ st.markdown(
         color: var(--ink-soft);
         font-size: 0.95rem;
         line-height: 1.35;
+    }
+    .legend-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 0.35rem 0.8rem;
+        margin-top: 0.35rem;
+    }
+    .legend-item {
+        display: flex;
+        align-items: center;
+        gap: 0.45rem;
+        font-size: 0.9rem;
+        color: var(--ink-soft);
+        line-height: 1.2;
+    }
+    .legend-swatch {
+        width: 0.78rem;
+        height: 0.78rem;
+        border-radius: 999px;
+        border: 1px solid rgba(58, 40, 25, 0.18);
+        flex: 0 0 auto;
     }
     </style>
     """,
@@ -628,17 +660,7 @@ with middle:
             values="count",
             hole=0.35,
             color="occupation_group",
-            color_discrete_map={
-                "Business / Owner": "#8D4B32",
-                "Skilled Trades": "#B17749",
-                "Professional": "#5B6F97",
-                "Labor": "#708C56",
-                "Domestic / Service": "#7D5F8C",
-                "Clerical / Administrative": "#5A7D6E",
-                "Transport / Maritime": "#C7A15A",
-                "Public / Civic": "#8D6B5A",
-                "Other / Unknown": "#8A8176",
-            },
+            color_discrete_map=GROUP_HEX,
         )
         pie_fig.update_traces(
             textposition="inside",
@@ -656,6 +678,27 @@ with middle:
             uniformtext_mode="hide",
         )
         st.plotly_chart(pie_fig, use_container_width=True, config={"displayModeBar": False})
+        legend_order = [
+            "Business / Owner",
+            "Skilled Trades",
+            "Professional",
+            "Labor",
+            "Domestic / Service",
+            "Clerical / Administrative",
+            "Transport / Maritime",
+            "Public / Civic",
+            "Other / Unknown",
+        ]
+        st.markdown(
+            "<div class='legend-grid'>"
+            + "".join(
+                f"<div class='legend-item'><span class='legend-swatch' style='background:{GROUP_HEX[group]}'></span>{group}</div>"
+                for group in legend_order
+                if group in selected_occ['occupation_group'].values
+            )
+            + "</div>",
+            unsafe_allow_html=True,
+        )
 
 with right:
     st.subheader("Neighborhood Ratios")
