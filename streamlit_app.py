@@ -302,7 +302,7 @@ if map_df.empty:
 selected_occ = occupation_summary_df[occupation_summary_df["year"] == selected_year].copy()
 zone_geojson = build_zone_geojson(grouped_points_df, manhattan_nta_features, selected_year)
 
-left, middle, right = st.columns([1.25, 0.85, 1.05], gap="medium")
+left, middle, right = st.columns([1.2, 0.95, 1.0], gap="medium")
 
 with left:
     st.subheader("Directory Point Map")
@@ -357,13 +357,20 @@ with middle:
                 "#8a8176",
             ],
         )
-        pie_fig.update_traces(textposition="inside", textinfo="percent+label")
+        pie_fig.update_traces(
+            textposition="inside",
+            textinfo="percent",
+            textfont_size=11,
+            hovertemplate="%{label}<br>%{percent}<extra></extra>",
+        )
         pie_fig.update_layout(
-            margin=dict(l=0, r=0, t=10, b=0),
+            margin=dict(l=10, r=10, t=10, b=10),
             height=320,
             showlegend=False,
             paper_bgcolor="rgba(0,0,0,0)",
             font=dict(color="#3a2819", family="Baskerville, Times New Roman, serif"),
+            uniformtext_minsize=10,
+            uniformtext_mode="hide",
         )
         st.plotly_chart(pie_fig, use_container_width=True, config={"displayModeBar": False})
 
