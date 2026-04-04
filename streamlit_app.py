@@ -58,14 +58,6 @@ st.markdown(
         padding: 0.7rem 1rem 0.4rem 1rem;
         border-radius: 14px;
     }
-    div[data-testid="stPlotlyChart"],
-    div[data-testid="stDeckGlJsonChart"] {
-        background: rgba(255, 252, 244, 0.55);
-        border: 1px solid rgba(95, 67, 37, 0.14);
-        border-radius: 18px;
-        padding: 0.35rem;
-        box-shadow: 0 10px 30px rgba(74, 52, 29, 0.08);
-    }
     </style>
     """,
     unsafe_allow_html=True,
