@@ -76,6 +76,17 @@ st.markdown(
     p, label, div[data-testid="stMarkdownContainer"] {
         font-family: "Baskerville", "Times New Roman", Georgia, serif;
     }
+    div[data-testid="stSlider"] label,
+    div[data-testid="stSlider"] p,
+    div[data-testid="stSlider"] span {
+        color: #2f2418 !important;
+        opacity: 1 !important;
+        text-shadow: none !important;
+    }
+    div[data-testid="stSlider"] label {
+        font-weight: 700 !important;
+        letter-spacing: 0.02em;
+    }
     div[data-testid="stSlider"] {
         background: linear-gradient(180deg, rgba(255,255,255,0.24), rgba(255,255,255,0.08));
         border: 1px solid rgba(110, 79, 46, 0.16);
@@ -84,7 +95,9 @@ st.markdown(
         box-shadow: inset 0 1px 0 rgba(255,255,255,0.32);
     }
     .hero {
-        background: linear-gradient(135deg, rgba(255,250,241,0.8), rgba(242,229,202,0.58));
+        background:
+            radial-gradient(circle at top right, rgba(141, 75, 50, 0.08), transparent 28%),
+            linear-gradient(135deg, rgba(255,250,241,0.86), rgba(242,229,202,0.62));
         border: 1px solid var(--paper-line);
         border-radius: 22px;
         padding: 1.15rem 1.35rem 1rem 1.35rem;
@@ -113,11 +126,12 @@ st.markdown(
         margin: 0;
     }
     .control-card {
-        background: rgba(255, 248, 234, 0.5);
+        background: linear-gradient(180deg, rgba(255, 249, 237, 0.72), rgba(248, 238, 214, 0.42));
         border: 1px solid rgba(110, 79, 46, 0.14);
         border-radius: 18px;
         padding: 0.75rem 0.95rem;
         margin-bottom: 0.8rem;
+        box-shadow: 0 10px 24px rgba(74, 52, 29, 0.06);
     }
     .control-label {
         text-transform: uppercase;
@@ -160,11 +174,12 @@ st.markdown(
         color: var(--ink);
     }
     .metric-card {
-        background: rgba(255,248,234,0.5);
+        background: linear-gradient(180deg, rgba(255, 249, 237, 0.78), rgba(246, 236, 214, 0.5));
         border: 1px solid rgba(110, 79, 46, 0.14);
         border-radius: 18px;
         padding: 0.8rem 0.95rem;
         min-height: 108px;
+        box-shadow: 0 12px 28px rgba(74, 52, 29, 0.06);
     }
     .metric-label {
         text-transform: uppercase;
@@ -207,6 +222,7 @@ st.markdown(
         grid-template-columns: repeat(2, minmax(0, 1fr));
         gap: 0.35rem 0.8rem;
         margin-top: 0.35rem;
+        margin-left: 0.6rem;
     }
     .legend-item {
         display: flex;
@@ -222,6 +238,14 @@ st.markdown(
         border-radius: 999px;
         border: 1px solid rgba(58, 40, 25, 0.18);
         flex: 0 0 auto;
+    }
+    div[data-testid="stDeckGlJsonChart"],
+    div[data-testid="stAudio"] {
+        background: rgba(255, 250, 241, 0.38);
+        border: 1px solid rgba(95, 67, 37, 0.1);
+        border-radius: 20px;
+        padding: 0.45rem;
+        box-shadow: 0 14px 30px rgba(74, 52, 29, 0.07);
     }
     </style>
     """,
@@ -526,9 +550,21 @@ st.markdown(
     .hero-kicker, .control-label {{
         color: {theme["accent"]};
     }}
+    .hero-title,
+    .metric-value {{
+        color: {theme["accent"]};
+    }}
     .control-card {{
         border-color: {theme["soft"]};
         box-shadow: inset 0 1px 0 rgba(255,255,255,0.28);
+    }}
+    .metric-card,
+    .insight-band {{
+        border-color: {theme["soft"]};
+    }}
+    .leaderboard strong {{
+        color: {theme["accent"]};
+        font-weight: 700;
     }}
     h2 {{
         color: {theme["accent"]};
