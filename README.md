@@ -1,71 +1,204 @@
 # Occupation Trends in Early New York, 1850-1854
 
-An interactive historical data visualization built with Streamlit for NYU Data Services' 2026 urban data visualization contest.
+An interactive geospatial data-science project built with Streamlit from the **New York City Directories Extracted Persons Entries, 1850-1890** dataset.
 
-This project uses the **New York City Directories Extracted Persons Entries, 1850-1890** dataset to explore how occupations were distributed across Manhattan in the early 1850s. Through a synchronized year slider, the dashboard lets viewers move across 1850-1854 and compare individual directory entries, occupation composition, and neighborhood-level occupational dominance.
+This repository contains my submission for the **NYU Data Services urban data visualization contest**. The project turns noisy historical directory records into a cleaned, geocoded, and interpretable dashboard that explores how occupations appeared across Manhattan in the early 1850s.
 
-## Live Concept
+## Overview
 
-The central question behind this project is:
+This project asks a simple question:
 
 **What did the geography of work look like in early New York?**
 
-Rather than treating the city directory as a static table of names and jobs, this dashboard reframes it as a spatial and social record of urban life. The result is a historical interface that shows where people appeared in the directory, what kinds of work were represented, and how occupational patterns varied across neighborhoods.
+Using a cleaned and geocoded subset of directory entries from **1850-1854**, the dashboard allows viewers to move year by year and compare:
 
-## Why This Project
+- individual directory entries plotted as geocoded points
+- grouped occupation composition for the selected year
+- neighborhood-level occupational dominance across Manhattan
 
-This project was created in response to NYU Data Services' urban data visualization contest, which highlights datasets created by NYU researchers and invites students to interpret them through thoughtful, well-documented visual work.
+The result is both a contest submission and a portfolio-style data-science project centered on historical data cleaning, geospatial analysis, and interactive storytelling.
 
-The competition emphasizes:
+## Highlights
 
-- ease of interpretation
-- information enrichment
-- elegance and efficiency
-- originality and impact
-- quality of documentation
-
-This dashboard was designed with those goals in mind: readable interaction design, clear narrative framing, strong visual hierarchy, transparent methodology, and a focused scope that prioritizes interpretability over excess.
+- Cleaned and normalized historical address and occupation data from a noisy 19th-century source
+- Geocoded address records with the **Google Maps Geocoding API**
+- Cached repeated queries to reduce redundant API calls
+- Engineered occupation groups from inconsistent raw text
+- Built an interactive Streamlit dashboard with coordinated temporal and spatial views
+- Designed the final interface around readability, historical atmosphere, and methodological transparency
 
 ## Dataset
 
-Primary contest dataset:
+Primary dataset:
 
 - **New York City Directories Extracted Persons Entries, 1850-1890**
 
-This is one of the official eligible datasets provided for the NYU Data Services contest. The full source spans 1850-1890; this project focuses on the years **1850-1854** to keep the analysis and interface more coherent and contest-ready.
+This is one of the official eligible datasets provided for the NYU Data Services contest. The full source spans forty years, but this project focuses on **1850-1854** so the final product could prioritize geocoding quality, interpretability, and polished presentation.
 
 ## Additional Sources
 
-To support the spatial analysis, this project also uses:
+Supporting sources used in the analysis:
 
-- **Manhattan Neighborhood Tabulation Area (NTA) boundary polygons** for the neighborhood choropleth layer
+- **Google Maps Geocoding API** for converting cleaned historical addresses into coordinates
+- **Manhattan Neighborhood Tabulation Area (NTA) polygons** for neighborhood-level spatial aggregation in the choropleth
 
-These boundaries are used only to summarize the directory records geographically. The historical directory entries remain the primary dataset and the core analytical source.
+These sources support interpretation of the contest dataset; the historical directory records remain the primary object of analysis.
 
-## What the Dashboard Includes
+## Data Science Workflow
 
-### 1. Interactive Point Map
+The project followed an end-to-end workflow:
 
-Each point represents one geocoded directory entry for the selected year.
+1. Parse and flatten historical directory records
+2. Clean and normalize person, occupation, and location fields
+3. Filter out vague or non-geocodable addresses
+4. Remove exact person-address-year duplicates
+5. Geocode cleaned address queries
+6. Cache repeated address lookups
+7. Join coordinates back to person-level records
+8. Engineer occupation groups from noisy raw strings
+9. Aggregate records for charts and choropleth layers
+10. Build and refine the interactive Streamlit application
 
-Hovering reveals:
+## Data Cleaning
+
+Historical city-directory data required significant preprocessing before it could be used analytically.
+
+### Address Cleaning
+
+Address preparation included:
+
+- flattening nested corrected location fields
+- standardizing punctuation and whitespace
+- expanding common abbreviations where possible
+- normalizing street-type tokens
+- preserving confidence-related location fields
+- rejecting incomplete, vague, or non-geocodable addresses
+- preparing cleaned geocoding query strings
+
+Key challenges in the raw data:
+
+- OCR noise
+- inconsistent spelling
+- abbreviations
+- incomplete address strings
+- repeated addresses across many records
+- historically shifted or obsolete place references
+
+### Duplicate Handling
+
+Duplicates were handled at the analytical-record level by removing exact person-address-year repeats after normalization. This preserved historically meaningful repeated addresses while filtering obvious duplication artifacts.
+
+### Occupation Cleaning and Grouping
+
+Raw occupation values were too inconsistent to use directly, so they were normalized and grouped through a layered text-processing workflow:
+
+- lowercase and punctuation normalization
+- abbreviation cleanup
+- manual synonym mapping
+- rule-based classification
+- iterative refinement using frequent unresolved terms
+
+Final occupation groups:
+
+- Business / Owner
+- Skilled Trades
+- Professional
+- Labor
+- Domestic / Service
+- Clerical / Administrative
+- Transport / Maritime
+- Public / Civic
+- Other / Unknown
+
+This grouping layer powers both the occupation composition chart and the neighborhood choropleth.
+
+## Geocoding Strategy
+
+Geocoding was performed using the **Google Maps Geocoding API** after historical addresses were cleaned and normalized.
+
+### Why Google Maps API
+
+The final project needed a geocoder that was:
+
+- reliable under deadline conditions
+- practical for batch processing
+- more stable than public, rate-limited alternatives
+
+### Geocoding Workflow
+
+The geocoding pipeline used the following strategy:
+
+- geocode only cleaned candidate addresses
+- cache results for repeated addresses
+- reuse coordinates for recurring address strings across rows
+- join cached coordinates back onto the person-level dataset
+
+This reduced redundant calls, improved efficiency, and made the final data pipeline more reproducible.
+
+## Visualization Strategy
+
+The dashboard was designed around three synchronized analytical views controlled by a single year slider.
+
+### 1. Point Map
+
+One geocoded point is shown for each directory entry in the selected year.
+
+Why this choice:
+
+- it preserves the direct connection between the historical record and the spatial display
+- it makes the data feel archival and human rather than overly abstracted
+
+Hover tooltip:
 
 - person name
 - occupation
 
-This is intentionally kept at the individual-record level so the viewer can see the raw spatial footprint of the data.
+### 2. Occupation Composition Chart
 
-### 2. Occupation Diversity Chart
+This chart summarizes grouped occupational composition for the selected year.
 
-A grouped occupation chart summarizes the occupational composition of the selected year. Because the original occupation labels are messy, abbreviated, and inconsistent, the dashboard uses normalized occupation groups rather than raw strings.
+Why this choice:
 
-### 3. Neighborhood Occupation Choropleth
+- grouped occupations create a readable summary from messy raw text
+- the chart provides a compact citywide view that complements the map
 
-The choropleth assigns records to Manhattan neighborhood polygons and colors each neighborhood by its dominant occupation group for the selected year. Hover details provide a quick neighborhood-level ratio summary.
+### 3. Neighborhood Dominance Choropleth
 
-### 4. Historical Audio Layer
+The choropleth colors Manhattan neighborhoods by the occupation group with the highest share in that area for the selected year.
 
-The dashboard includes year-specific background audio to add historical atmosphere and support the contest's information-enrichment dimension. These tracks are used as interpretive presentation elements, not as data inputs.
+Why this choice:
+
+- it shifts the analysis from individual points to neighborhood character
+- it makes occupational specialization easier to read than the point map alone
+
+### Dashboard Design Choices
+
+- one shared year control across all views
+- stable occupation colors across years
+- year-specific accent themes used for atmosphere, not analytical encoding
+- summary cards and interpretive text to guide the viewer
+- a historical paper-and-ink visual language rather than a generic dashboard aesthetic
+
+## Dashboard Features
+
+The final Streamlit app includes:
+
+- year slider for 1850-1854
+- interactive Manhattan point map
+- hover tooltips with name and occupation
+- grouped occupation composition chart
+- neighborhood dominance choropleth
+- summary cards and interpretive text
+- year-specific historical audio layer
+
+## Tech Stack
+
+- **Python**
+- **Pandas**
+- **Google Maps Geocoding API**
+- **Streamlit**
+- **Pydeck**
+- **Plotly Express**
 
 ## Project Structure
 
@@ -86,69 +219,7 @@ The dashboard includes year-specific background audio to add historical atmosphe
     └── 1854.mp3
 ```
 
-## Methodology
-
-### 1. Data Cleaning
-
-The historical directory entries required significant preprocessing before they could be used for mapping and comparison.
-
-The cleaning workflow included:
-
-- flattening nested corrected location records
-- normalizing person names
-- standardizing and cleaning address text
-- preserving location confidence fields
-- identifying and removing exact person-address-year duplicates
-- filtering vague or non-geocodable addresses
-- preparing cleaned address queries for geocoding
-
-The underlying data presented common historical-text problems:
-
-- OCR noise
-- inconsistent spelling
-- abbreviations
-- incomplete addresses
-- repeated addresses across many records
-
-### 2. Geocoding
-
-After normalization, cleaned addresses were geocoded and cached so repeated addresses could reuse the same coordinates instead of being processed repeatedly.
-
-For the final app, the repository includes a compact saved dataset containing the usable geocoded results for **1850-1854**.
-
-### 3. Occupation Normalization and Grouping
-
-Raw occupation text was not suitable for direct analysis. To make the data interpretable, occupations were:
-
-- lowercased and normalized
-- cleaned for punctuation and common abbreviations
-- mapped through manual synonym handling
-- grouped using rule-based classification
-- iteratively refined by reviewing frequent unresolved terms
-
-The final groups are:
-
-- Business / Owner
-- Skilled Trades
-- Professional
-- Labor
-- Domestic / Service
-- Clerical / Administrative
-- Transport / Maritime
-- Public / Civic
-- Other / Unknown
-
-This grouping layer is what powers both the occupation chart and the neighborhood choropleth.
-
-## Tools and Technologies
-
-- Python
-- Pandas
-- Streamlit
-- Plotly
-- Pydeck
-
-## Running the Project
+## Run Locally
 
 Install dependencies:
 
@@ -156,79 +227,67 @@ Install dependencies:
 pip install -r requirements.txt
 ```
 
-Run locally:
+Start the app:
 
 ```bash
 streamlit run streamlit_app.py
 ```
 
-## Design Decisions
+## Technical Decisions
 
-Several design choices were made deliberately for readability and storytelling:
+### Focused Time Window
 
-- The dashboard focuses on **1850-1854** instead of all forty years.
-  This keeps the narrative tight and avoids turning the project into a rushed coverage exercise.
-- The point map remains **individual-record based** rather than aggregated.
-  This preserves the immediacy of the historical directory entries.
-- Occupation colors stay **consistent across years** so category meaning is stable.
-- Year-specific accent colors are used to give each year a different mood without sacrificing comparability.
-- The interface uses a warm paper-and-ink palette and serif typography to evoke a historical atlas rather than a generic dashboard.
+The source dataset covers forty years, but the final project focuses on **1850-1854**. This was a deliberate product decision:
+
+- the time slice is still rich enough to show meaningful patterns
+- the narrower scope improved geocoding completion and dashboard quality
+- it allowed more time for cleaning, documentation, and visualization refinement
+
+### Stable Occupation Encoding
+
+Occupation colors remain fixed across years so the viewer can compare categories consistently.
+
+### Modern Neighborhood Boundaries on Historical Data
+
+The choropleth uses modern Manhattan neighborhood polygons to summarize historical points. This is analytically useful, but still interpretive rather than a perfect historical administrative match.
 
 ## Limitations
 
-- Historical addresses do not always map neatly onto modern geographies.
-- Some occupation labels remain ambiguous and are grouped into `Other / Unknown`.
-- The neighborhood analysis applies modern polygon boundaries to historical point data.
-- The current published app focuses on 1850-1854 rather than the full 1850-1890 span.
-- The audio layer is interpretive and atmospheric, not analytical.
-
-## Documentation for Contest Submission
-
-This repository is intended to satisfy the contest's documentation expectations by describing:
-
-- the primary dataset used
-- additional geographic sources
-- the processing and cleaning workflow
-- the tools required to run the project
-- major design decisions
-- limitations and interpretive boundaries
-- generative AI assistance used during development
+- Historical addresses do not always resolve cleanly to modern geographies.
+- Geocoding quality depends on the legibility and modern interpretability of historical address strings.
+- The project represents a geocoded subset of records rather than a complete census of residents.
+- Occupation grouping involves interpretive classification.
+- Modern polygon boundaries are applied to historical points.
+- The published dashboard focuses on 1850-1854 rather than the full 1850-1890 span.
 
 ## Generative AI Disclosure
 
-Generative AI was used during development as a programming and workflow assistant.
+Generative AI was used as a coding and workflow assistant during development.
 
 OpenAI Codex assisted with:
 
 - drafting and refining data cleaning scripts
-- normalizing historical address and occupation fields
-- structuring parts of the geocoding workflow and caching logic
-- helping build and debug the Streamlit dashboard
-- refining layout, styling, and documentation
-
-All substantive analytical framing, project direction, interpretation, curation of the final output, and final submission decisions were made by the project author.
-
-### Credit for AI-Assisted Data Cleaning
-
-Credit is due to **OpenAI Codex** for assistance with the data cleaning pipeline, especially:
-
 - address normalization logic
-- duplicate handling logic
-- geocoding workflow structure
+- duplicate-handling logic
+- geocoding workflow design
 - occupation grouping workflow
+- Streamlit debugging and interface refinement
+- README drafting and documentation support
 
-The final project reflects human judgment in deciding what to clean, what to keep, how to frame the story, and how to present the data responsibly.
+All final analytical framing, interpretation, design choices, and submission decisions were made by the project author.
 
-## Portfolio Framing
+## Why This Works as a Portfolio Project
 
-Beyond the contest, this project demonstrates:
+This project demonstrates:
 
-- historical data cleaning under noisy real-world conditions
-- geospatial visualization design
-- interactive dashboard development
-- categorical feature engineering from messy text
-- thoughtful documentation and methodological transparency
+- historical data cleaning under noisy conditions
+- geospatial data preparation
+- API-based geocoding with caching and reuse
+- feature engineering from messy text
+- interactive visualization design
+- methodological transparency
+- end-to-end data storytelling from raw records to deployable app
 
 ## Acknowledgment
 
-This project was created as an effort to make an NYU-supported historical urban dataset more accessible, interpretable, and engaging for a wider audience. It treats the city directory not simply as a list of entries, but as a lens into how labor, business, and everyday life were distributed across early New York.
+This project was built as both a historical urban visualization and a technical exercise in transforming archival-style data into a structured, explorable analytical product. It aims to make an NYU-supported historical dataset more legible, reusable, and engaging for contemporary audiences.

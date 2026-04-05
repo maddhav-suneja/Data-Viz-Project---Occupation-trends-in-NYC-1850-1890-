@@ -1,5 +1,4 @@
 from pathlib import Path
-
 import pandas as pd
 import plotly.express as px
 import pydeck as pdk
@@ -187,6 +186,22 @@ st.markdown(
         font-size: 0.95rem;
         line-height: 1.35;
     }
+    .metric-copy-tight {
+        margin: 0 0 0.45rem 0;
+        color: var(--ink-soft);
+        font-size: 0.88rem;
+        line-height: 1.35;
+    }
+    .leaderboard {
+        margin: 0.1rem 0 0 0;
+        padding-left: 1rem;
+        color: var(--ink-soft);
+        font-size: 0.95rem;
+        line-height: 1.45;
+    }
+    .leaderboard li::marker {
+        color: #8d6b5a;
+    }
     .legend-grid {
         display: grid;
         grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -271,28 +286,6 @@ def build_map_layer(df):
         radius_max_pixels=2,
         get_fill_color=[r, g, b, 105],
         pickable=True,
-    )
-
-
-def build_heatmap_layer(df):
-    theme = YEAR_THEME.get(int(df["year"].iloc[0]), YEAR_THEME[1850]) if not df.empty else YEAR_THEME[1850]
-    r, g, b = theme["accent_rgb"]
-    return pdk.Layer(
-        "HeatmapLayer",
-        data=df,
-        get_position="[longitude, latitude]",
-        get_weight=1,
-        radius_pixels=35,
-        intensity=1,
-        threshold=0.08,
-        color_range=[
-            [255, 247, 236, 10],
-            [253, 224, 181, 60],
-            [r, g, b, 110],
-            [max(r - 20, 35), max(g - 20, 25), max(b - 20, 25), 170],
-            [max(r - 35, 20), max(g - 35, 20), max(b - 35, 20), 230],
-        ],
-        pickable=False,
     )
 
 
@@ -436,27 +429,39 @@ def summarize_year(selected_year, selected_occ, zone_geojson, map_df):
         top_occ = top_row["occupation_group"]
         top_share = float(top_row["count"] / selected_occ["count"].sum())
 
-    top_zone = None
-    top_zone_group = None
-    top_zone_share = None
+    neighborhood_leaders = []
     if zone_geojson["features"]:
-        top_feature = max(
-            zone_geojson["features"],
-            key=lambda feature: float(str(feature["properties"]["dominant_share_pct"]).strip("%")),
-        )
-        top_zone = top_feature["properties"]["zone_name"]
-        top_zone_group = top_feature["properties"]["dominant_group"]
-        top_zone_share = top_feature["properties"]["dominant_share_pct"]
+        group_to_places = {}
+        point_totals = {}
+        for feature in zone_geojson["features"]:
+            group = feature["properties"]["dominant_group"]
+            zone_name = feature["properties"]["zone_name"]
+            total_points = int(feature["properties"]["total_points"])
+            group_to_places.setdefault(group, []).append(zone_name)
+            point_totals.setdefault(group, []).append(total_points)
 
-    if top_occ and top_zone:
+        neighborhood_leaders = sorted(
+            (
+                {
+                    "group": group,
+                    "count": len(places),
+                    "points": sum(point_totals[group]),
+                    "places": sorted(places)[:3],
+                }
+                for group, places in group_to_places.items()
+            ),
+            key=lambda item: (-item["count"], -item["points"], item["group"]),
+        )[:5]
+
+    if top_occ and neighborhood_leaders:
         insight_text = (
-            f"In {selected_year}, mapped directory entries remain concentrated in lower Manhattan. "
+            f"In {selected_year}, the map suggests the strongest directory concentration in lower Manhattan. "
             f"{top_occ} is the largest occupation group overall ({top_share:.1%} of grouped entries), "
-            f"while {top_zone} stands out as the most specialized neighborhood, led by {top_zone_group} at {top_zone_share}."
+            f"and {neighborhood_leaders[0]['group']} leads the most neighborhoods on the choropleth."
         )
     elif top_occ:
         insight_text = (
-            f"In {selected_year}, mapped directory entries remain concentrated in lower Manhattan, "
+            f"In {selected_year}, the map suggests a strong concentration of directory activity in lower Manhattan, "
             f"and {top_occ} is the largest occupation group overall ({top_share:.1%} of grouped entries)."
         )
     else:
@@ -465,7 +470,13 @@ def summarize_year(selected_year, selected_occ, zone_geojson, map_df):
             f"directory activity clusters in parts of lower Manhattan rather than spreading evenly across the island."
         )
 
-    return mapped_total, top_occ, top_share, top_zone, top_zone_group, top_zone_share, insight_text
+    return (
+        mapped_total,
+        top_occ,
+        top_share,
+        neighborhood_leaders,
+        insight_text,
+    )
 
 
 st.markdown(
@@ -566,9 +577,13 @@ if map_df.empty:
 
 selected_occ = occupation_summary_df[occupation_summary_df["year"] == selected_year].copy()
 zone_geojson = build_zone_geojson(grouped_points_df, manhattan_nta_features, selected_year)
-mapped_total, top_occ, top_share, top_zone, top_zone_group, top_zone_share, insight_text = summarize_year(
-    selected_year, selected_occ, zone_geojson, map_df
-)
+(
+    mapped_total,
+    top_occ,
+    top_share,
+    neighborhood_leaders,
+    insight_text,
+) = summarize_year(selected_year, selected_occ, zone_geojson, map_df)
 
 metric1, metric2, metric3 = st.columns(3, gap="medium")
 with metric1:
@@ -594,12 +609,22 @@ with metric2:
         unsafe_allow_html=True,
     )
 with metric3:
+    leaderboard_html = (
+        "<ol class='leaderboard'>"
+        + "".join(
+            f"<li><strong>{item['group']}</strong> leads {item['count']} neighborhoods</li>"
+            for item in neighborhood_leaders
+        )
+        + "</ol>"
+        if neighborhood_leaders
+        else "<p class='metric-copy'>No neighborhood data available for this year.</p>"
+    )
     st.markdown(
         f"""
         <div class="metric-card">
-            <div class="metric-label">Most Specialized Neighborhood</div>
-            <div class="metric-value">{top_zone or "N/A"}</div>
-            <p class="metric-copy">{f"{top_zone_group} leads this area at {top_zone_share}." if top_zone else "Neighborhood summary unavailable for this year."}</p>
+            <div class="metric-label">Neighborhood Dominance</div>
+            <p class="metric-copy-tight">How many neighborhoods are led by each occupation group in the selected year.</p>
+            {leaderboard_html}
         </div>
         """,
         unsafe_allow_html=True,
