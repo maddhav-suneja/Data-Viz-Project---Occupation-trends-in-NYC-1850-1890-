@@ -532,11 +532,6 @@ st.markdown(
     <div class="hero">
         <div class="hero-kicker">Historical Urban Directory Atlas</div>
         <div class="hero-title">Occupation Trends in Early New York, 1850-1854</div>
-        <p class="hero-copy">
-            This dashboard follows how geocoded directory entries were distributed across Manhattan between 1850 and 1854.
-            Use the shared year control to trace individual directory points, compare the occupational makeup of each year,
-            and see which neighborhoods were dominated by different kinds of work.
-        </p>
     </div>
     """,
     unsafe_allow_html=True,
