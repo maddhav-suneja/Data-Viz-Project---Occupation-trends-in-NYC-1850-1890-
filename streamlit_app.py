@@ -64,8 +64,8 @@ st.markdown(
         color: var(--ink);
     }
     .main .block-container {
-        padding-top: 1.1rem;
-        padding-bottom: 3rem;
+        padding-top: 0.3rem;
+        padding-bottom: 1.5rem;
         max-width: 1380px;
     }
     h1, h2, h3 {
@@ -76,23 +76,37 @@ st.markdown(
     p, label, div[data-testid="stMarkdownContainer"] {
         font-family: "Baskerville", "Times New Roman", Georgia, serif;
     }
-    div[data-testid="stSlider"] label,
-    div[data-testid="stSlider"] p,
-    div[data-testid="stSlider"] span {
+    .slider-shell {
+        margin: 0 0 -0.22rem 0;
+    }
+    .slider-kicker {
+        font-size: 0.72rem;
+        text-transform: uppercase;
+        letter-spacing: 0.16em;
+        color: var(--ink-soft);
+        margin-bottom: 0.08rem;
+    }
+    div[data-testid="stSelectSlider"] {
+        margin-top: -0.1rem;
+        margin-bottom: 0.05rem;
+    }
+    div[data-testid="stSelectSlider"] label {
+        display: none !important;
+    }
+    div[data-testid="stSelectSlider"] span,
+    div[data-testid="stSelectSlider"] p {
         color: #2f2418 !important;
         opacity: 1 !important;
         text-shadow: none !important;
+        font-size: 0.84rem !important;
     }
-    div[data-testid="stSlider"] label {
-        font-weight: 700 !important;
-        letter-spacing: 0.02em;
+    div[data-testid="stSelectSlider"] [data-baseweb="slider"] {
+        margin-top: 0 !important;
+        margin-bottom: 0 !important;
     }
-    div[data-testid="stSlider"] {
-        background: linear-gradient(180deg, rgba(255,255,255,0.24), rgba(255,255,255,0.08));
-        border: 1px solid rgba(110, 79, 46, 0.16);
-        padding: 0.8rem 1rem 0.45rem 1rem;
-        border-radius: 15px;
-        box-shadow: inset 0 1px 0 rgba(255,255,255,0.32);
+    div[data-testid="stSelectSlider"] [data-baseweb="slider"] > div {
+        padding-top: 0 !important;
+        padding-bottom: 0 !important;
     }
     .hero {
         background:
@@ -100,119 +114,129 @@ st.markdown(
             linear-gradient(135deg, rgba(255,250,241,0.86), rgba(242,229,202,0.62));
         border: 1px solid var(--paper-line);
         border-radius: 22px;
-        padding: 1.15rem 1.35rem 1rem 1.35rem;
-        margin-bottom: 1rem;
+        padding: 0.58rem 0.9rem 0.5rem 0.9rem;
+        margin-bottom: 0.28rem;
         box-shadow: 0 14px 34px var(--glow);
     }
     .hero-kicker {
         text-transform: uppercase;
         letter-spacing: 0.18em;
-        font-size: 0.72rem;
+        font-size: 0.66rem;
         color: var(--ink-soft);
-        margin-bottom: 0.35rem;
+        margin-bottom: 0.18rem;
     }
     .hero-title {
         font-family: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", Georgia, serif;
-        font-size: 2.45rem;
-        line-height: 1.02;
+        font-size: 1.8rem;
+        line-height: 0.98;
         color: #362517;
-        margin: 0 0 0.45rem 0;
+        margin: 0 0 0.14rem 0;
     }
     .hero-copy {
         color: var(--ink-soft);
-        font-size: 1.05rem;
-        line-height: 1.45;
-        max-width: 980px;
+        font-size: 0.84rem;
+        line-height: 1.22;
+        max-width: 860px;
         margin: 0;
     }
     .control-card {
         background: linear-gradient(180deg, rgba(255, 249, 237, 0.72), rgba(248, 238, 214, 0.42));
         border: 1px solid rgba(110, 79, 46, 0.14);
         border-radius: 18px;
-        padding: 0.75rem 0.95rem;
-        margin-bottom: 0.8rem;
+        padding: 0.42rem 0.72rem;
+        margin-bottom: 0.22rem;
         box-shadow: 0 10px 24px rgba(74, 52, 29, 0.06);
+    }
+    div[data-testid="stHorizontalBlock"] {
+        gap: 0.8rem;
+    }
+    div[data-testid="stHorizontalBlock"] > div:has(.metric-card) {
+        margin-top: -0.28rem;
     }
     .control-label {
         text-transform: uppercase;
         letter-spacing: 0.14em;
-        font-size: 0.72rem;
+        font-size: 0.66rem;
         color: var(--ink-soft);
-        margin-bottom: 0.3rem;
+        margin-bottom: 0.18rem;
     }
     .control-copy {
         margin: 0;
         color: var(--ink);
-        line-height: 1.4;
+        line-height: 1.25;
+        font-size: 0.82rem;
     }
     .viz-note {
         color: var(--ink-soft);
         font-size: 0.97rem;
         line-height: 1.4;
         margin-top: -0.2rem;
-        margin-bottom: 0.55rem;
+        margin-bottom: 0.32rem;
     }
     .insight-band {
         background: linear-gradient(135deg, rgba(255,250,241,0.82), rgba(242,229,202,0.52));
         border: 1px solid var(--paper-line);
         border-radius: 20px;
-        padding: 1rem 1.15rem;
-        margin: 0.7rem 0 1rem 0;
+        padding: 0.7rem 0.9rem;
+        margin: 0.12rem 0 0.35rem 0;
         box-shadow: 0 12px 28px var(--glow);
     }
     .insight-label {
         text-transform: uppercase;
         letter-spacing: 0.14em;
-        font-size: 0.72rem;
+        font-size: 0.64rem;
         color: var(--ink-soft);
-        margin-bottom: 0.35rem;
+        margin-bottom: 0.18rem;
     }
     .insight-text {
         margin: 0;
-        font-size: 1.02rem;
-        line-height: 1.45;
+        font-size: 0.92rem;
+        line-height: 1.3;
         color: var(--ink);
     }
     .metric-card {
         background: linear-gradient(180deg, rgba(255, 249, 237, 0.78), rgba(246, 236, 214, 0.5));
         border: 1px solid rgba(110, 79, 46, 0.14);
         border-radius: 18px;
-        padding: 0.8rem 0.95rem;
-        min-height: 108px;
+        padding: 0.6rem 0.8rem;
+        min-height: 78px;
         box-shadow: 0 12px 28px rgba(74, 52, 29, 0.06);
     }
     .metric-label {
         text-transform: uppercase;
         letter-spacing: 0.14em;
-        font-size: 0.7rem;
+        font-size: 0.62rem;
         color: var(--ink-soft);
-        margin-bottom: 0.4rem;
+        margin-bottom: 0.22rem;
     }
     .metric-value {
         font-family: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", Georgia, serif;
-        font-size: 1.7rem;
+        font-size: 1.2rem;
         line-height: 1;
         color: #362517;
-        margin-bottom: 0.35rem;
+        margin-bottom: 0.14rem;
     }
     .metric-copy {
         margin: 0;
         color: var(--ink-soft);
-        font-size: 0.95rem;
-        line-height: 1.35;
+        font-size: 0.75rem;
+        line-height: 1.14;
+    }
+    .metric-card-offset {
+        margin-top: 0.38rem;
     }
     .metric-copy-tight {
-        margin: 0 0 0.45rem 0;
+        margin: 0 0 0.15rem 0;
         color: var(--ink-soft);
-        font-size: 0.88rem;
-        line-height: 1.35;
+        font-size: 0.72rem;
+        line-height: 1.1;
     }
     .leaderboard {
-        margin: 0.1rem 0 0 0;
+        margin: 0.04rem 0 0 0;
         padding-left: 1rem;
         color: var(--ink-soft);
-        font-size: 0.95rem;
-        line-height: 1.45;
+        font-size: 0.82rem;
+        line-height: 1.18;
     }
     .leaderboard li::marker {
         color: #8d6b5a;
@@ -221,7 +245,7 @@ st.markdown(
         display: grid;
         grid-template-columns: repeat(2, minmax(0, 1fr));
         gap: 0.35rem 0.8rem;
-        margin-top: 0.35rem;
+        margin-top: 0.18rem;
         margin-left: 0.6rem;
     }
     .legend-item {
@@ -522,12 +546,12 @@ if not APP_POINTS_PATH.exists():
     st.error("Missing app data file. Build the compact 1850-1854 points file before opening this app.")
     st.stop()
 
-selected_year = st.slider(
+st.markdown("<div class='slider-shell'><div class='slider-kicker'>Year</div></div>", unsafe_allow_html=True)
+selected_year = st.select_slider(
     "Year",
-    min_value=min(YEAR_RANGE),
-    max_value=max(YEAR_RANGE),
+    options=YEAR_RANGE,
     value=min(YEAR_RANGE),
-    step=1,
+    label_visibility="collapsed",
 )
 theme = YEAR_THEME[selected_year]
 
@@ -574,15 +598,14 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-top_left, top_right = st.columns([1.6, 1])
+top_left, top_right = st.columns([1.9, 0.85])
 with top_left:
     st.markdown(
         f"""
         <div class="control-card">
             <div class="control-label">Shared Year View</div>
             <p class="control-copy">
-                All three views update together. The dashboard is currently focused on <strong>{selected_year}</strong>,
-                so the map, occupation mix, and neighborhood ratios stay synchronized.
+                All views update together for <strong>{selected_year}</strong>.
             </p>
         </div>
         """,
@@ -594,7 +617,7 @@ with top_right:
             f"""
             <div class="control-card">
                 <div class="control-label">Listening Layer</div>
-                <p class="control-copy">Historical audio for <strong>{selected_year}</strong>.</p>
+                <p class="control-copy">Audio track for <strong>{selected_year}</strong>.</p>
             </div>
             """,
             unsafe_allow_html=True,
@@ -621,8 +644,8 @@ zone_geojson = build_zone_geojson(grouped_points_df, manhattan_nta_features, sel
     insight_text,
 ) = summarize_year(selected_year, selected_occ, zone_geojson, map_df)
 
-metric1, metric2, metric3 = st.columns(3, gap="medium")
-with metric1:
+summary_left, summary_middle, summary_right = st.columns([0.9, 1.05, 1.05], gap="medium")
+with summary_left:
     st.markdown(
         f"""
         <div class="metric-card">
@@ -633,10 +656,9 @@ with metric1:
         """,
         unsafe_allow_html=True,
     )
-with metric2:
     st.markdown(
         f"""
-        <div class="metric-card">
+        <div class="metric-card metric-card-offset">
             <div class="metric-label">Largest Occupation Group</div>
             <div class="metric-value">{top_occ or "N/A"}</div>
             <p class="metric-copy">{f"{top_share:.1%} of grouped entries in {selected_year}." if top_share is not None else "Grouped occupation summary unavailable."}</p>
@@ -644,7 +666,7 @@ with metric2:
         """,
         unsafe_allow_html=True,
     )
-with metric3:
+with summary_middle:
     leaderboard_html = (
         "<ol class='leaderboard'>"
         + "".join(
@@ -665,16 +687,16 @@ with metric3:
         """,
         unsafe_allow_html=True,
     )
-
-st.markdown(
-    f"""
-    <div class="insight-band">
-        <div class="insight-label">What To Notice</div>
-        <p class="insight-text">{insight_text}</p>
-    </div>
-    """,
-    unsafe_allow_html=True,
-)
+with summary_right:
+    st.markdown(
+        f"""
+        <div class="insight-band">
+            <div class="insight-label">What To Notice</div>
+            <p class="insight-text">{insight_text}</p>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
 
 left, middle, right = st.columns([1.2, 0.95, 1.0], gap="medium")
 
